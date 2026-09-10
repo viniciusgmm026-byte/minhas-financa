@@ -1,0 +1,2698 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Finanças" />
+  <title>Finanças Pessoais</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --surface:#ffffff;
+      --surface2:#eef2f7;
+      --text:#0f172a;
+      --muted:#64748b;
+      --primary:#2563eb;
+      --primary2:#1d4ed8;
+      --success:#15803d;
+      --danger:#dc2626;
+      --warn:#d97706;
+      --border:#e2e8f0;
+      --shadow:0 12px 30px rgba(15,23,42,.08);
+      --radius:18px;
+    }
+
+    [data-theme="dark"]{
+      --bg:#0b1220;
+      --surface:#111827;
+      --surface2:#172033;
+      --text:#f8fafc;
+      --muted:#94a3b8;
+      --primary:#60a5fa;
+      --primary2:#3b82f6;
+      --success:#4ade80;
+      --danger:#f87171;
+      --warn:#fbbf24;
+      --border:#253047;
+      --shadow:0 12px 30px rgba(0,0,0,.28);
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif
+    }
+
+    button,input,select{font:inherit}
+
+    .app{
+      max-width:780px;
+      margin:0 auto;
+      min-height:100vh;
+      padding:env(safe-area-inset-top) 14px calc(92px + env(safe-area-inset-bottom))
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:5;
+      background:linear-gradient(var(--bg) 80%,transparent);
+      padding:18px 2px 14px
+    }
+
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px
+    }
+
+    .top h1{font-size:24px;margin:0}
+    .top p{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+    .iconbtn{
+      border:0;
+      background:var(--surface);
+      color:var(--text);
+      border-radius:14px;
+      width:44px;
+      height:44px;
+      box-shadow:var(--shadow)
+    }
+
+    .monthbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:8px;
+      margin-top:12px
+    }
+
+    .monthbar button{
+      border:0;
+      background:transparent;
+      color:var(--text);
+      font-size:20px;
+      padding:8px 12px
+    }
+
+    .monthbar strong{text-transform:capitalize}
+
+    .view{display:none}
+    .view.active{display:block}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px
+    }
+
+    .card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:16px;
+      box-shadow:var(--shadow)
+    }
+
+    .kpi small{
+      color:var(--muted);
+      display:block;
+      margin-bottom:6px
+    }
+
+    .kpi b{font-size:21px}
+
+    .kpi .sub{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:5px
+    }
+
+    .positive{color:var(--success)}
+    .negative{color:var(--danger)}
+    .warning{color:var(--warn)}
+
+    h2{font-size:18px;margin:22px 2px 10px}
+    h3{margin:0 0 10px;font-size:15px}
+
+    .hero{
+      padding:20px;
+      background:linear-gradient(135deg,#0f172a,#1e3a8a);
+      color:white;
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      margin-bottom:12px
+    }
+
+    .hero small{opacity:.8}
+
+    .hero .money{
+      font-size:34px;
+      font-weight:800;
+      margin:6px 0
+    }
+
+    .hero .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap
+    }
+
+    .hero .pill{
+      background:rgba(255,255,255,.12);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px
+    }
+
+    .progress{
+      height:10px;
+      background:var(--surface2);
+      border-radius:999px;
+      overflow:hidden;
+      margin-top:8px
+    }
+
+    .progress>span{
+      display:block;
+      height:100%;
+      background:var(--primary);
+      border-radius:999px
+    }
+
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:8px
+    }
+
+    .item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:13px;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:15px
+    }
+
+    .item .meta{min-width:0}
+
+    .item .meta b{
+      display:block;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis
+    }
+
+    .item .meta small{color:var(--muted)}
+
+    .amount{
+      text-align:right;
+      font-weight:700;
+      white-space:nowrap
+    }
+
+    .tag{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:var(--surface2);
+      color:var(--muted)
+    }
+
+    .btn{
+      border:0;
+      border-radius:14px;
+      padding:12px 14px;
+      background:var(--primary);
+      color:white;
+      font-weight:700
+    }
+
+    .btn.secondary{
+      background:var(--surface2);
+      color:var(--text)
+    }
+
+    .btn.danger{background:var(--danger)}
+
+    .btnrow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap
+    }
+
+    .btnrow .btn{flex:1}
+
+    .fab{
+      position:fixed;
+      right:max(22px,calc((100vw - 780px)/2 + 22px));
+      bottom:calc(82px + env(safe-area-inset-bottom));
+      width:56px;
+      height:56px;
+      border:0;
+      border-radius:50%;
+      background:var(--primary);
+      color:white;
+      font-size:28px;
+      box-shadow:0 14px 30px rgba(37,99,235,.35);
+      z-index:9
+    }
+
+    nav{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:0;
+      width:min(100%,780px);
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      background:color-mix(in srgb,var(--surface) 94%, transparent);
+      backdrop-filter:blur(16px);
+      border-top:1px solid var(--border);
+      padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+      z-index:10
+    }
+
+    nav button{
+      border:0;
+      background:transparent;
+      color:var(--muted);
+      font-size:11px;
+      padding:7px 2px
+    }
+
+    nav button span{
+      display:block;
+      font-size:20px;
+      margin-bottom:3px
+    }
+
+    nav button.active{
+      color:var(--primary);
+      font-weight:700
+    }
+
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(2,6,23,.55);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      z-index:50
+    }
+
+    .modal.show{display:flex}
+
+    .sheet{
+      width:min(100%,780px);
+      max-height:88vh;
+      overflow:auto;
+      background:var(--surface);
+      border-radius:24px 24px 0 0;
+      padding:18px 16px calc(18px + env(safe-area-inset-bottom))
+    }
+
+    .sheethead{
+      display:flex;
+      justify-content:space-between;
+      align-items:center
+    }
+
+    .sheethead h2{margin:0}
+
+    .close{
+      border:0;
+      background:var(--surface2);
+      color:var(--text);
+      width:36px;
+      height:36px;
+      border-radius:12px
+    }
+
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin:14px 2px 6px
+    }
+
+    input,select{
+      width:100%;
+      border:1px solid var(--border);
+      background:var(--surface2);
+      color:var(--text);
+      padding:13px;
+      border-radius:13px;
+      outline:none
+    }
+
+    input:focus,select:focus{border-color:var(--primary)}
+
+    .formgrid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px
+    }
+
+    .full{grid-column:1/-1}
+
+    .empty{
+      padding:24px;
+      text-align:center;
+      color:var(--muted);
+      border:1px dashed var(--border);
+      border-radius:15px
+    }
+
+    .allocation{
+      display:grid;
+      grid-template-columns:1fr 100px;
+      gap:8px;
+      align-items:center;
+      margin:8px 0
+    }
+
+    .donutwrap{
+      display:flex;
+      align-items:center;
+      gap:16px
+    }
+
+    .donut{
+      width:110px;
+      height:110px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:conic-gradient(var(--primary) 0 50%,var(--surface2) 50% 100%)
+    }
+
+    .donut:after{
+      content:"";
+      width:72px;
+      height:72px;
+      border-radius:50%;
+      background:var(--surface);
+      position:absolute
+    }
+
+    .donuttext{
+      position:absolute;
+      z-index:1;
+      text-align:center
+    }
+
+    .donutbox{
+      position:relative;
+      width:110px;
+      height:110px
+    }
+
+    .notice{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45
+    }
+
+    .section-actions{
+      display:flex;
+      gap:8px;
+      margin:10px 0
+    }
+
+    .section-actions .btn{flex:1}
+
+    .tiny{font-size:11px;color:var(--muted)}
+    .right{text-align:right}
+
+    @media(min-width:650px){
+      .grid.three{grid-template-columns:repeat(3,1fr)}
+      .fab{right:max(28px,calc((100vw - 780px)/2 + 28px))}
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app" id="app">
+
+  <header>
+    <div class="top">
+      <div>
+        <h1>Minhas Finanças</h1>
+        <p>Controle simples, privado e no seu aparelho</p>
+      </div>
+      <button class="iconbtn" id="themeBtn">🌙</button>
+    </div>
+
+    <div class="monthbar">
+      <button id="prevMonth">‹</button>
+      <strong id="monthLabel"></strong>
+      <button id="nextMonth">›</button>
+    </div>
+  </header>
+
+  <main>
+
+    <section id="dashboard" class="view active">
+
+      <div class="hero">
+        <small>Saldo livre do mês</small>
+        <div class="money" id="heroBalance">R$ 0,00</div>
+        <div class="row">
+          <div class="pill" id="heroIncome">Entradas R$ 0,00</div>
+          <div class="pill" id="heroOut">Saídas R$ 0,00</div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card kpi">
+          <small>Receitas</small>
+          <b class="positive" id="kpiIncome">R$ 0</b>
+          <div class="sub">salários e outras entradas</div>
+        </div>
+
+        <div class="card kpi">
+          <small>Despesas</small>
+          <b class="negative" id="kpiExpense">R$ 0</b>
+          <div class="sub">gastos do mês</div>
+        </div>
+
+        <div class="card kpi">
+          <small>Dívidas pagas</small>
+          <b id="kpiDebtPaid">R$ 0</b>
+          <div class="sub">pagamentos registrados</div>
+        </div>
+
+        <div class="card kpi">
+          <small>Investido</small>
+          <b id="kpiInvested">R$ 0</b>
+          <div class="sub">aportes registrados</div>
+        </div>
+      </div>
+
+      <h2>Plano do dinheiro disponível</h2>
+      <div class="card" id="allocationCard"></div>
+
+      <h2>Saúde financeira</h2>
+
+      <div class="grid three">
+        <div class="card kpi">
+          <small>Comprometimento</small>
+          <b id="healthCommitment">0%</b>
+          <div class="sub">gastos + dívidas / renda</div>
+        </div>
+
+        <div class="card kpi">
+          <small>Taxa de poupança</small>
+          <b id="healthSavings">0%</b>
+          <div class="sub">investimentos / renda</div>
+        </div>
+
+        <div class="card kpi">
+          <small>Dívida total</small>
+          <b id="healthDebt">R$ 0</b>
+          <div class="sub">saldo das dívidas ativas</div>
+        </div>
+      </div>
+
+      <h2>Últimos lançamentos</h2>
+      <div class="list" id="recentList"></div>
+
+    </section>
+
+    <section id="transactions" class="view">
+
+      <div class="section-actions">
+        <button class="btn" onclick="openTransaction()">+ Lançamento</button>
+        <button class="btn secondary" onclick="openSalaryPreset()">+ Salário</button>
+      </div>
+
+      <div class="card">
+        <div class="formgrid">
+
+          <div>
+            <label>Filtrar tipo</label>
+            <select id="filterType">
+              <option value="">Todos</option>
+              <option value="income">Receita</option>
+              <option value="expense">Despesa</option>
+              <option value="debt_payment">Dívida</option>
+              <option value="investment">Investimento</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Buscar</label>
+            <input id="filterText" placeholder="Ex.: aluguel, mercado">
+          </div>
+
+        </div>
+      </div>
+
+      <h2>Lançamentos do mês</h2>
+      <div class="list" id="transactionsList"></div>
+
+    </section>
+
+    <section id="debts" class="view">
+
+      <div class="section-actions">
+        <button class="btn" onclick="openDebt()">+ Nova dívida</button>
+      </div>
+
+      <div class="grid">
+
+        <div class="card kpi">
+          <small>Total em aberto</small>
+          <b class="negative" id="debtTotal">R$ 0</b>
+        </div>
+
+        <div class="card kpi">
+          <small>Pagamentos planejados</small>
+          <b id="debtPlan">R$ 0</b>
+        </div>
+
+      </div>
+
+      <h2>Minhas dívidas</h2>
+      <div class="list" id="debtsList"></div>
+
+    </section>
+
+    <section id="goals" class="view">
+
+      <div class="section-actions">
+        <button class="btn" onclick="openGoal()">+ Nova meta</button>
+      </div>
+
+      <h2>Metas financeiras</h2>
+      <div class="list" id="goalsList"></div>
+
+    </section>
+
+    <section id="settings" class="view">
+
+      <div class="card">
+
+        <h3>Percentuais de destino do saldo</h3>
+
+        <p class="notice">
+          O app pega o saldo após despesas e dívidas pagas e mostra quanto você poderia direcionar para cada objetivo.
+          Os percentuais devem somar 100%.
+        </p>
+
+        <div class="allocation">
+          <span>Reserva de emergência</span>
+          <input type="number" min="0" max="100" id="allocEmergency">
+        </div>
+
+        <div class="allocation">
+          <span>Investimentos de longo prazo</span>
+          <input type="number" min="0" max="100" id="allocLong">
+        </div>
+
+        <div class="allocation">
+          <span>Metas e compras</span>
+          <input type="number" min="0" max="100" id="allocGoals">
+        </div>
+
+        <div class="allocation">
+          <span>Lazer / livre</span>
+          <input type="number" min="0" max="100" id="allocFree">
+        </div>
+
+        <p class="notice" id="allocSum"></p>
+
+        <button class="btn" onclick="saveAllocation()">
+          Salvar percentuais
+        </button>
+
+      </div>
+
+      <h2>Reserva de emergência</h2>
+
+      <div class="card">
+
+        <label>Meta em meses de despesas</label>
+        <input type="number" id="reserveMonths" min="1" max="24">
+
+        <label>Valor já guardado</label>
+        <input type="number" id="reserveCurrent" min="0" step="0.01">
+
+        <button class="btn" style="margin-top:12px" onclick="saveReserve()">
+          Salvar reserva
+        </button>
+
+        <div id="reserveSummary" style="margin-top:14px"></div>
+
+      </div>
+
+      <h2>Backup e privacidade</h2>
+
+      <div class="card">
+
+        <p class="notice">
+          Seus dados ficam salvos no armazenamento local do navegador deste aparelho.
+          Faça backup periodicamente, especialmente antes de trocar de celular ou limpar dados do Safari.
+        </p>
+
+        <div class="btnrow">
+
+          <button class="btn secondary" onclick="exportData()">
+            Exportar backup
+          </button>
+
+          <button class="btn secondary" onclick="document.getElementById('importFile').click()">
+            Importar backup
+          </button>
+
+        </div>
+
+        <input id="importFile" type="file" accept="application/json" style="display:none">
+
+        <button class="btn danger" style="width:100%;margin-top:10px" onclick="resetData()">
+          Apagar todos os dados
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+<button class="fab" id="fab" onclick="openTransaction()">＋</button>
+
+<nav id="nav">
+
+  <button data-view="dashboard" class="active">
+    <span>⌂</span>
+    Início
+  </button>
+
+  <button data-view="transactions">
+    <span>↕</span>
+    Lançamentos
+  </button>
+
+  <button data-view="debts">
+    <span>▣</span>
+    Dívidas
+  </button>
+
+  <button data-view="goals">
+    <span>◎</span>
+    Metas
+  </button>
+
+  <button data-view="settings">
+    <span>⚙</span>
+    Ajustes
+  </button>
+
+</nav>
+
+<div class="modal" id="transactionModal">
+
+  <div class="sheet">
+
+    <div class="sheethead">
+      <h2>Novo lançamento</h2>
+      <button class="close" onclick="closeModal('transactionModal')">✕</button>
+    </div>
+
+    <div class="formgrid">
+
+      <div class="full">
+        <label>Tipo</label>
+        <select id="txType" onchange="toggleTxFields()">
+          <option value="expense">Despesa</option>
+          <option value="income">Receita</option>
+          <option value="debt_payment">Pagamento de dívida</option>
+          <option value="investment">Investimento</option>
+        </select>
+      </div>
+
+      <div class="full">
+        <label>Descrição</label>
+        <input id="txDesc" placeholder="Ex.: Salário, mercado, CDB">
+      </div>
+
+      <div>
+        <label>Valor</label>
+        <input id="txValue" type="number" min="0" step="0.01">
+      </div>
+
+      <div>
+        <label>Data</label>
+        <input id="txDate" type="date">
+      </div>
+
+      <div class="full" id="debtField" style="display:none">
+        <label>Dívida relacionada</label>
+        <select id="txDebt"></select>
+      </div>
+
+      <div class="full" id="investField" style="display:none">
+        <label>Categoria do investimento</label>
+
+        <select id="txInvestCat">
+          <option>Reserva de emergência</option>
+          <option>Renda fixa</option>
+          <option>Renda variável</option>
+          <option>Previdência</option>
+          <option>Cripto</option>
+          <option>Outro</option>
+        </select>
+
+      </div>
+
+      <div class="full">
+        <label>Categoria</label>
+        <input id="txCategory" placeholder="Ex.: Casa, Transporte, Alimentação">
+      </div>
+
+    </div>
+
+    <button class="btn" style="width:100%;margin-top:16px" onclick="saveTransaction()">
+      Salvar lançamento
+    </button>
+
+  </div>
+
+</div>
+
+<div class="modal" id="debtModal">
+
+  <div class="sheet">
+
+    <div class="sheethead">
+      <h2>Nova dívida</h2>
+      <button class="close" onclick="closeModal('debtModal')">✕</button>
+    </div>
+
+    <label>Nome da dívida</label>
+    <input id="debtName" placeholder="Ex.: Cartão, empréstimo, financiamento">
+
+    <div class="formgrid">
+
+      <div>
+        <label>Saldo atual</label>
+        <input id="debtBalance" type="number" min="0" step="0.01">
+      </div>
+
+      <div>
+        <label>Juros ao mês (%)</label>
+        <input id="debtInterest" type="number" min="0" step="0.01" value="0">
+      </div>
+
+      <div>
+        <label>Parcela mínima</label>
+        <input id="debtMin" type="number" min="0" step="0.01">
+      </div>
+
+      <div>
+        <label>Pagamento planejado</label>
+        <input id="debtPlanned" type="number" min="0" step="0.01">
+      </div>
+
+    </div>
+
+    <button class="btn" style="width:100%;margin-top:16px" onclick="saveDebt()">
+      Salvar dívida
+    </button>
+
+  </div>
+
+</div>
+
+<div class="modal" id="goalModal">
+
+  <div class="sheet">
+
+    <div class="sheethead">
+      <h2>Nova meta</h2>
+      <button class="close" onclick="closeModal('goalModal')">✕</button>
+    </div>
+
+    <label>Nome da meta</label>
+    <input id="goalName" placeholder="Ex.: Viagem, carro, entrada da casa">
+
+    <div class="formgrid">
+
+      <div>
+        <label>Valor alvo</label>
+        <input id="goalTarget" type="number" min="0" step="0.01">
+      </div>
+
+      <div>
+        <label>Já tenho</label>
+        <input id="goalCurrent" type="number" min="0" step="0.01" value="0">
+      </div>
+
+      <div class="full">
+        <label>Data alvo</label>
+        <input id="goalDate" type="date">
+      </div>
+
+    </div>
+
+    <button class="btn" style="width:100%;margin-top:16px" onclick="saveGoal()">
+      Salvar meta
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+const fmt = new Intl.NumberFormat(
+  'pt-BR',
+  {
+    style:'currency',
+    currency:'BRL'
+  }
+);
+
+const monthFmt = new Intl.DateTimeFormat(
+  'pt-BR',
+  {
+    month:'long',
+    year:'numeric'
+  }
+);
+
+const uid = () =>
+  Date.now().toString(36) +
+  Math.random().toString(36).slice(2,7);
+
+const KEY='financas_pessoais_v1';
+
+let selectedMonth = new Date();
+
+selectedMonth.setDate(1);
+
+const defaultData = {
+
+  transactions:[],
+
+  debts:[],
+
+  goals:[],
+
+  allocation:{
+    emergency:30,
+    long:30,
+    goals:30,
+    free:10
+  },
+
+  reserve:{
+    months:6,
+    current:0
+  },
+
+  theme:'light'
+
+};
+
+let data = load();
+
+function load(){
+
+  try{
+
+    const saved =
+      JSON.parse(
+        localStorage.getItem(KEY)
+      );
+
+    return saved
+      ? Object.assign({},defaultData,saved)
+      : structuredClone(defaultData);
+
+  }
+
+  catch(e){
+
+    return structuredClone(defaultData);
+
+  }
+
+}
+
+function persist(){
+
+  localStorage.setItem(
+    KEY,
+    JSON.stringify(data)
+  );
+
+  renderAll();
+
+}
+
+function money(v){
+
+  return fmt.format(
+    Number(v||0)
+  );
+
+}
+
+function monthKey(d){
+
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+
+}
+
+function txMonth(t){
+
+  return String(t.date||'').slice(0,7);
+
+}
+
+function currentTx(){
+
+  return data.transactions.filter(
+    t=>txMonth(t)===monthKey(selectedMonth)
+  );
+
+}
+
+function monthStats(){
+
+  const tx=currentTx();
+
+  const income=
+    tx.filter(t=>t.type==='income')
+      .reduce((s,t)=>s+t.value,0);
+
+  const expense=
+    tx.filter(t=>t.type==='expense')
+      .reduce((s,t)=>s+t.value,0);
+
+  const debt=
+    tx.filter(t=>t.type==='debt_payment')
+      .reduce((s,t)=>s+t.value,0);
+
+  const invest=
+    tx.filter(t=>t.type==='investment')
+      .reduce((s,t)=>s+t.value,0);
+
+  const balance=
+    income-expense-debt-invest;
+
+  const preInvest=
+    income-expense-debt;
+
+  return {
+    tx,
+    income,
+    expense,
+    debt,
+    invest,
+    balance,
+    preInvest
+  };
+
+}
+
+function avgExpenses(){
+
+  const months={};
+
+  data.transactions
+    .filter(
+      t=>['expense','debt_payment']
+      .includes(t.type)
+    )
+    .forEach(t=>{
+
+      const k=txMonth(t);
+
+      if(!k)return;
+
+      months[k]=(months[k]||0)+t.value;
+
+    });
+
+  const vals=
+    Object.values(months).slice(-6);
+
+  return vals.length
+    ? vals.reduce((a,b)=>a+b,0)/vals.length
+    : 0;
+
+}
+
+function totalDebt(){
+
+  return data.debts.reduce(
+    (s,d)=>s+Math.max(0,d.balance),
+    0
+  );
+
+}
+
+function renderAll(){
+
+  document.documentElement.dataset.theme=
+    data.theme||'light';
+
+  document.getElementById('themeBtn').textContent=
+    data.theme==='dark'
+      ? '☀️'
+      : '🌙';
+
+  document.getElementById('monthLabel').textContent=
+    monthFmt.format(selectedMonth);
+
+  renderDashboard();
+  renderTransactions();
+  renderDebts();
+  renderGoals();
+  renderSettings();
+
+}
+
+function renderDashboard(){
+
+  const s=monthStats();
+
+  heroBalance.textContent=
+    money(s.balance);
+
+  heroBalance.className=
+    'money '+(s.balance<0?'negative':'');
+
+  heroIncome.textContent=
+    'Entradas '+money(s.income);
+
+  heroOut.textContent=
+    'Saídas '+money(
+      s.expense+s.debt+s.invest
+    );
+
+  kpiIncome.textContent=
+    money(s.income);
+
+  kpiExpense.textContent=
+    money(s.expense);
+
+  kpiDebtPaid.textContent=
+    money(s.debt);
+
+  kpiInvested.textContent=
+    money(s.invest);
+
+  const commitment=
+    s.income
+      ? ((s.expense+s.debt)/s.income*100)
+      : 0;
+
+  const savings=
+    s.income
+      ? (s.invest/s.income*100)
+      : 0;
+
+  healthCommitment.textContent=
+    commitment.toFixed(0)+'%';
+
+  healthCommitment.className=
+    commitment>80
+      ? 'negative'
+      : commitment>60
+      ? 'warning'
+      : 'positive';
+
+  healthSavings.textContent=
+    savings.toFixed(0)+'%';
+
+  healthSavings.className=
+    savings>=20
+      ? 'positive'
+      : '';
+
+  healthDebt.textContent=
+    money(totalDebt());
+
+  const allocBase=
+    Math.max(0,s.preInvest);
+
+  const a=data.allocation;
+
+  allocationCard.innerHTML=`
+
+    <div class="donutwrap">
+
+      <div class="donutbox">
+
+        <div
+          class="donut"
+          style="
+          background:
+          conic-gradient(
+          var(--primary)
+          0
+          ${Math.min(
+            100,
+            (s.invest/(allocBase||1))*100
+          )}%,
+          var(--surface2)
+          0
+          100%)
+          ">
+        </div>
+
+        <div
+          class="donuttext"
+          style="inset:34px 0 auto"
+        >
+
+          <b>
+          ${
+            allocBase
+            ? Math.min(
+                999,
+                (s.invest/allocBase*100)
+              ).toFixed(0)
+            : 0
+          }%
+          </b>
+
+          <div class="tiny">
+            já investido
+          </div>
+
+        </div>
+
+      </div>
+
+      <div>
+
+        <b>
+          Saldo para distribuir:
+          ${money(allocBase)}
+        </b>
+
+        <div class="notice">
+          Antes dos investimentos registrados.
+        </div>
+
+      </div>
+
+    </div>
+
+    <div
+      style="margin-top:14px"
+      class="list"
+    >
+
+      <div class="item">
+
+        <div class="meta">
+          <b>Reserva de emergência</b>
+          <small>${a.emergency}%</small>
+        </div>
+
+        <div class="amount">
+          ${money(
+            allocBase*a.emergency/100
+          )}
+        </div>
+
+      </div>
+
+      <div class="item">
+
+        <div class="meta">
+          <b>Longo prazo</b>
+          <small>${a.long}%</small>
+        </div>
+
+        <div class="amount">
+          ${money(
+            allocBase*a.long/100
+          )}
+        </div>
+
+      </div>
+
+      <div class="item">
+
+        <div class="meta">
+          <b>Metas</b>
+          <small>${a.goals}%</small>
+        </div>
+
+        <div class="amount">
+          ${money(
+            allocBase*a.goals/100
+          )}
+        </div>
+
+      </div>
+
+      <div class="item">
+
+        <div class="meta">
+          <b>Livre / lazer</b>
+          <small>${a.free}%</small>
+        </div>
+
+        <div class="amount">
+          ${money(
+            allocBase*a.free/100
+          )}
+        </div>
+
+      </div>
+
+    </div>
+  `;
+
+  const last=
+    [...s.tx]
+      .sort(
+        (a,b)=>
+          String(b.date)
+          .localeCompare(String(a.date))
+      )
+      .slice(0,5);
+
+  recentList.innerHTML=
+    last.length
+      ? last.map(txHTML).join('')
+      : '<div class="empty">Nenhum lançamento neste mês.</div>';
+
+}
+
+function txHTML(t){
+
+  const labels={
+    income:'Receita',
+    expense:'Despesa',
+    debt_payment:'Dívida',
+    investment:'Investimento'
+  };
+
+  const sign=
+    t.type==='income'
+      ? '+'
+      : '−';
+
+  const cls=
+    t.type==='income'
+      ? 'positive'
+      : t.type==='expense'
+      ? 'negative'
+      : '';
+
+  const date=
+    t.date
+      ? new Date(
+          t.date+'T12:00:00'
+        ).toLocaleDateString('pt-BR')
+      : '';
+
+  return `
+
+  <div class="item">
+
+    <div class="meta">
+
+      <b>
+        ${escapeHtml(t.desc)}
+      </b>
+
+      <small>
+        ${date}
+        ·
+        ${escapeHtml(
+          t.category||labels[t.type]
+        )}
+      </small>
+
+    </div>
+
+    <div>
+
+      <div class="amount ${cls}">
+        ${sign}
+        ${money(t.value)}
+      </div>
+
+      <div class="right">
+        <span class="tag">
+          ${labels[t.type]}
+        </span>
+      </div>
+
+    </div>
+
+  </div>`;
+
+}
+
+function renderTransactions(){
+
+  const type=
+    filterType?.value||'';
+
+  const q=
+    (filterText?.value||'')
+    .toLowerCase();
+
+  let tx=
+    [...currentTx()]
+      .filter(
+        t=>
+        (!type||t.type===type)
+        &&
+        (
+          !q ||
+          `${t.desc} ${t.category}`
+          .toLowerCase()
+          .includes(q)
+        )
+      )
+      .sort(
+        (a,b)=>
+          String(b.date)
+          .localeCompare(String(a.date))
+      );
+
+  transactionsList.innerHTML=
+    tx.length
+      ? tx.map(
+          t=>
+          txHTML(t)+
+          `
+          <div
+            class="right"
+            style="margin:-4px 6px 2px"
+          >
+            <button
+              class="btn secondary"
+              style="
+                padding:7px 10px;
+                font-size:11px
+              "
+              onclick="deleteTx('${t.id}')"
+            >
+              Excluir
+            </button>
+          </div>
+          `
+        ).join('')
+      : '<div class="empty">Nenhum lançamento encontrado.</div>';
+
+}
+
+function renderDebts(){
+
+  debtTotal.textContent=
+    money(totalDebt());
+
+  debtPlan.textContent=
+    money(
+      data.debts.reduce(
+        (s,d)=>s+(d.planned||0),
+        0
+      )
+    );
+
+  if(!data.debts.length){
+
+    debtsList.innerHTML=
+      '<div class="empty">Cadastre suas dívidas para acompanhar a quitação.</div>';
+
+    return;
+
+  }
+
+  debtsList.innerHTML=
+    data.debts.map(d=>{
+
+      const months=
+        payoffMonths(
+          d.balance,
+          d.interest,
+          d.planned||d.min
+        );
+
+      const msg=
+        months===Infinity
+          ? 'Pagamento não cobre os juros'
+          : months===0
+          ? 'Quitada'
+          : `Estimativa: ${months} mês${months===1?'':'es'}`;
+
+      return `
+
+      <div class="card">
+
+        <div
+          style="
+            display:flex;
+            justify-content:space-between;
+            gap:10px
+          "
+        >
+
+          <div>
+
+            <b>
+              ${escapeHtml(d.name)}
+            </b>
+
+            <div class="tiny">
+              Juros:
+              ${Number(
+                d.interest||0
+              ).toFixed(2)}% a.m.
+            </div>
+
+          </div>
+
+          <div class="amount negative">
+            ${money(d.balance)}
+          </div>
+
+        </div>
+
+        <div class="progress">
+
+          <span
+            style="
+            width:
+            ${
+              Math.max(
+                4,
+                Math.min(
+                  100,
+                  (
+                    1-
+                    Math.max(
+                      0,
+                      d.balance
+                    )/
+                    (
+                      d.originalBalance
+                      ||
+                      d.balance
+                      ||
+                      1
+                    )
+                  )*100
+                )
+              )
+            }%
+            "
+          >
+          </span>
+
+        </div>
+
+        <div
+          class="notice"
+          style="margin-top:8px"
+        >
+
+          ${msg}
+
+          pagando
+
+          ${money(
+            d.planned||d.min
+          )}
+
+          / mês.
+
+        </div>
+
+        <div
+          class="btnrow"
+          style="margin-top:10px"
+        >
+
+          <button
+            class="btn secondary"
+            onclick="quickDebtPayment('${d.id}')"
+          >
+            Registrar pagamento
+          </button>
+
+          <button
+            class="btn danger"
+            onclick="deleteDebt('${d.id}')"
+          >
+            Excluir
+          </button>
+
+        </div>
+
+      </div>`;
+
+    }).join('');
+
+}
+
+function payoffMonths(
+  balance,
+  ratePct,
+  payment
+){
+
+  balance=Number(balance||0);
+
+  payment=Number(payment||0);
+
+  const r=
+    Number(ratePct||0)/100;
+
+  if(balance<=0)
+    return 0;
+
+  if(payment<=0)
+    return Infinity;
+
+  if(
+    r>0 &&
+    payment<=balance*r
+  )
+    return Infinity;
+
+  let m=0;
+
+  let b=balance;
+
+  while(
+    b>0.01 &&
+    m<1200
+  ){
+
+    b=b*(1+r)-payment;
+
+    m++;
+
+  }
+
+  return m>=1200
+    ? Infinity
+    : m;
+
+}
+
+function renderGoals(){
+
+  if(!data.goals.length){
+
+    goalsList.innerHTML=
+      '<div class="empty">Crie metas para acompanhar seus objetivos.</div>';
+
+    return;
+
+  }
+
+  goalsList.innerHTML=
+    data.goals.map(g=>{
+
+      const pct=
+        g.target
+          ? Math.min(
+              100,
+              g.current/g.target*100
+            )
+          : 0;
+
+      const due=
+        g.date
+          ? new Date(
+              g.date+'T12:00:00'
+            )
+          : null;
+
+      const months=
+        due
+          ? Math.max(
+              1,
+              Math.ceil(
+                (
+                  due-new Date()
+                )/
+                (
+                  1000*
+                  60*
+                  60*
+                  24*
+                  30.44
+                )
+              )
+            )
+          : null;
+
+      const monthly=
+        months
+          ? Math.max(
+              0,
+              (g.target-g.current)
+              /months
+            )
+          : null;
+
+      return `
+
+      <div class="card">
+
+        <div
+          style="
+          display:flex;
+          justify-content:space-between;
+          gap:10px
+          "
+        >
+
+          <div>
+
+            <b>
+              ${escapeHtml(g.name)}
+            </b>
+
+            <div class="tiny">
+
+              ${
+                g.date
+                  ? new Date(
+                      g.date+'T12:00:00'
+                    ).toLocaleDateString(
+                      'pt-BR'
+                    )
+                  : 'Sem data definida'
+              }
+
+            </div>
+
+          </div>
+
+          <div class="amount">
+            ${pct.toFixed(0)}%
+          </div>
+
+        </div>
+
+        <div class="progress">
+
+          <span
+            style="width:${pct}%"
+          >
+          </span>
+
+        </div>
+
+        <div
+          class="notice"
+          style="margin-top:8px"
+        >
+
+          ${money(g.current)}
+
+          de
+
+          ${money(g.target)}
+
+          ${
+            monthly!==null
+              ? ` · necessário ≈ ${money(monthly)}/mês`
+              : ''
+          }
+
+        </div>
+
+        <div
+          class="btnrow"
+          style="margin-top:10px"
+        >
+
+          <button
+            class="btn secondary"
+            onclick="contributeGoal('${g.id}')"
+          >
+            Adicionar valor
+          </button>
+
+          <button
+            class="btn danger"
+            onclick="deleteGoal('${g.id}')"
+          >
+            Excluir
+          </button>
+
+        </div>
+
+      </div>`;
+
+    }).join('');
+
+}
+
+function renderSettings(){
+
+  allocEmergency.value=
+    data.allocation.emergency;
+
+  allocLong.value=
+    data.allocation.long;
+
+  allocGoals.value=
+    data.allocation.goals;
+
+  allocFree.value=
+    data.allocation.free;
+
+  reserveMonths.value=
+    data.reserve.months;
+
+  reserveCurrent.value=
+    data.reserve.current;
+
+  const avg=
+    avgExpenses();
+
+  const target=
+    avg*data.reserve.months;
+
+  const pct=
+    target
+      ? Math.min(
+          100,
+          data.reserve.current/target*100
+        )
+      : 0;
+
+  reserveSummary.innerHTML=`
+
+    <b>
+      Meta estimada:
+      ${money(target)}
+    </b>
+
+    <div class="progress">
+
+      <span
+        style="width:${pct}%"
+      >
+      </span>
+
+    </div>
+
+    <div
+      class="notice"
+      style="margin-top:7px"
+    >
+
+      ${pct.toFixed(0)}%
+      concluído
+      · média de despesas considerada:
+      ${money(avg)}/mês
+
+    </div>
+  `;
+
+  updateAllocSum();
+
+}
+
+function updateAllocSum(){
+
+  const sum=
+    [
+      'allocEmergency',
+      'allocLong',
+      'allocGoals',
+      'allocFree'
+    ]
+    .reduce(
+      (s,id)=>
+        s+
+        Number(
+          document
+          .getElementById(id)
+          ?.value||0
+        ),
+      0
+    );
+
+  allocSum.textContent=
+    `Total: ${sum}% ${
+      sum===100
+        ? '✓'
+        : '— ajuste para 100%'
+    }`;
+
+  allocSum.className=
+    'notice '+
+    (
+      sum===100
+        ? 'positive'
+        : 'warning'
+    );
+
+}
+
+[
+  'allocEmergency',
+  'allocLong',
+  'allocGoals',
+  'allocFree'
+]
+.forEach(
+  id=>
+    document.addEventListener(
+      'input',
+      e=>{
+        if(e.target.id===id)
+          updateAllocSum();
+      }
+    )
+);
+
+function openTransaction(
+  type='expense',
+  desc=''
+){
+
+  txType.value=type;
+
+  txDesc.value=desc;
+
+  txValue.value='';
+
+  txCategory.value='';
+
+  const d=new Date();
+
+  if(
+    monthKey(d)!==
+    monthKey(selectedMonth)
+  ){
+
+    d.setFullYear(
+      selectedMonth.getFullYear(),
+      selectedMonth.getMonth(),
+      1
+    );
+
+  }
+
+  txDate.value=
+    d.toISOString().slice(0,10);
+
+  txDebt.innerHTML=
+    data.debts.map(
+      d=>
+      `<option value="${d.id}">
+        ${escapeHtml(d.name)}
+      </option>`
+    ).join('');
+
+  toggleTxFields();
+
+  transactionModal
+    .classList
+    .add('show');
+
+}
+
+function openSalaryPreset(){
+
+  openTransaction(
+    'income',
+    'Salário'
+  );
+
+  txCategory.value='Salário';
+
+}
+
+function toggleTxFields(){
+
+  debtField.style.display=
+    txType.value==='debt_payment'
+      ? 'block'
+      : 'none';
+
+  investField.style.display=
+    txType.value==='investment'
+      ? 'block'
+      : 'none';
+
+}
+
+function closeModal(id){
+
+  document
+    .getElementById(id)
+    .classList
+    .remove('show');
+
+}
+
+function saveTransaction(){
+
+  const value=
+    Number(txValue.value);
+
+  if(
+    !txDesc.value.trim()
+    ||
+    !(value>0)
+    ||
+    !txDate.value
+  ){
+
+    alert(
+      'Preencha descrição, valor e data.'
+    );
+
+    return;
+
+  }
+
+  const t={
+
+    id:uid(),
+
+    type:txType.value,
+
+    desc:txDesc.value.trim(),
+
+    value,
+
+    date:txDate.value,
+
+    category:
+      txCategory.value.trim()
+
+  };
+
+  if(
+    t.type==='debt_payment'
+  ){
+
+    if(!txDebt.value){
+
+      alert(
+        'Cadastre uma dívida primeiro.'
+      );
+
+      return;
+
+    }
+
+    t.debtId=
+      txDebt.value;
+
+    const d=
+      data.debts.find(
+        x=>x.id===t.debtId
+      );
+
+    if(d)
+      d.balance=
+        Math.max(
+          0,
+          d.balance-value
+        );
+
+  }
+
+  if(
+    t.type==='investment'
+  ){
+
+    t.investCategory=
+      txInvestCat.value;
+
+  }
+
+  data.transactions.push(t);
+
+  closeModal(
+    'transactionModal'
+  );
+
+  persist();
+
+}
+
+function deleteTx(id){
+
+  const t=
+    data.transactions.find(
+      x=>x.id===id
+    );
+
+  if(
+    !t
+    ||
+    !confirm(
+      'Excluir este lançamento?'
+    )
+  )
+    return;
+
+  if(
+    t.type==='debt_payment'
+    &&
+    t.debtId
+  ){
+
+    const d=
+      data.debts.find(
+        x=>x.id===t.debtId
+      );
+
+    if(d)
+      d.balance+=t.value;
+
+  }
+
+  data.transactions=
+    data.transactions.filter(
+      x=>x.id!==id
+    );
+
+  persist();
+
+}
+
+function openDebt(){
+
+  debtName.value='';
+
+  debtBalance.value='';
+
+  debtMin.value='';
+
+  debtPlanned.value='';
+
+  debtInterest.value='0';
+
+  debtModal
+    .classList
+    .add('show');
+
+}
+
+function saveDebt(){
+
+  const bal=
+    Number(debtBalance.value);
+
+  const planned=
+    Number(
+      debtPlanned.value
+      ||
+      debtMin.value
+    );
+
+  if(
+    !debtName.value.trim()
+    ||
+    !(bal>0)
+    ||
+    !(planned>0)
+  ){
+
+    alert(
+      'Informe nome, saldo e pagamento planejado.'
+    );
+
+    return;
+
+  }
+
+  data.debts.push({
+
+    id:uid(),
+
+    name:
+      debtName.value.trim(),
+
+    balance:bal,
+
+    originalBalance:bal,
+
+    interest:
+      Number(
+        debtInterest.value||0
+      ),
+
+    min:
+      Number(
+        debtMin.value||0
+      ),
+
+    planned
+
+  });
+
+  closeModal('debtModal');
+
+  persist();
+
+}
+
+function deleteDebt(id){
+
+  if(
+    confirm(
+      'Excluir esta dívida? Os lançamentos já registrados serão mantidos.'
+    )
+  ){
+
+    data.debts=
+      data.debts.filter(
+        d=>d.id!==id
+      );
+
+    persist();
+
+  }
+
+}
+
+function quickDebtPayment(id){
+
+  const d=
+    data.debts.find(
+      x=>x.id===id
+    );
+
+  if(!d)
+    return;
+
+  openTransaction(
+    'debt_payment',
+    'Pagamento '+d.name
+  );
+
+  setTimeout(()=>{
+
+    txDebt.value=id;
+
+    txValue.value=
+      d.planned
+      ||
+      d.min
+      ||
+      '';
+
+    txCategory.value=
+      'Dívidas';
+
+  },0);
+
+}
+
+function openGoal(){
+
+  goalName.value='';
+
+  goalTarget.value='';
+
+  goalCurrent.value='0';
+
+  goalDate.value='';
+
+  goalModal
+    .classList
+    .add('show');
+
+}
+
+function saveGoal(){
+
+  const target=
+    Number(goalTarget.value);
+
+  const current=
+    Number(
+      goalCurrent.value||0
+    );
+
+  if(
+    !goalName.value.trim()
+    ||
+    !(target>0)
+  ){
+
+    alert(
+      'Informe nome e valor da meta.'
+    );
+
+    return;
+
+  }
+
+  data.goals.push({
+
+    id:uid(),
+
+    name:
+      goalName.value.trim(),
+
+    target,
+
+    current,
+
+    date:
+      goalDate.value
+
+  });
+
+  closeModal('goalModal');
+
+  persist();
+
+}
+
+function contributeGoal(id){
+
+  const g=
+    data.goals.find(
+      x=>x.id===id
+    );
+
+  if(!g)
+    return;
+
+  const v=
+    Number(
+      prompt(
+        'Quanto deseja adicionar a esta meta?',
+        '0'
+      )
+    );
+
+  if(!(v>0))
+    return;
+
+  g.current=
+    Math.min(
+      g.target,
+      g.current+v
+    );
+
+  persist();
+
+}
+
+function deleteGoal(id){
+
+  if(
+    confirm(
+      'Excluir esta meta?'
+    )
+  ){
+
+    data.goals=
+      data.goals.filter(
+        g=>g.id!==id
+      );
+
+    persist();
+
+  }
+
+}
+
+function saveAllocation(){
+
+  const vals={
+
+    emergency:
+      Number(
+        allocEmergency.value||0
+      ),
+
+    long:
+      Number(
+        allocLong.value||0
+      ),
+
+    goals:
+      Number(
+        allocGoals.value||0
+      ),
+
+    free:
+      Number(
+        allocFree.value||0
+      )
+
+  };
+
+  if(
+    Object.values(vals)
+      .reduce(
+        (a,b)=>a+b,
+        0
+      )
+    !==100
+  ){
+
+    alert(
+      'Os percentuais precisam somar 100%.'
+    );
+
+    return;
+
+  }
+
+  data.allocation=vals;
+
+  persist();
+
+  alert(
+    'Percentuais salvos.'
+  );
+
+}
+
+function saveReserve(){
+
+  data.reserve={
+
+    months:
+      Number(
+        reserveMonths.value||6
+      ),
+
+    current:
+      Number(
+        reserveCurrent.value||0
+      )
+
+  };
+
+  persist();
+
+}
+
+function exportData(){
+
+  const blob=
+    new Blob(
+      [
+        JSON.stringify(
+          data,
+          null,
+          2
+        )
+      ],
+      {
+        type:'application/json'
+      }
+    );
+
+  const a=
+    document.createElement('a');
+
+  a.href=
+    URL.createObjectURL(blob);
+
+  a.download=
+    `backup-financas-${
+      new Date()
+        .toISOString()
+        .slice(0,10)
+    }.json`;
+
+  a.click();
+
+  URL.revokeObjectURL(
+    a.href
+  );
+
+}
+
+importFile.addEventListener(
+  'change',
+  async e=>{
+
+    const f=
+      e.target.files[0];
+
+    if(!f)
+      return;
+
+    try{
+
+      const parsed=
+        JSON.parse(
+          await f.text()
+        );
+
+      if(
+        !parsed.transactions
+        ||
+        !parsed.debts
+      )
+        throw 0;
+
+      data=
+        Object.assign(
+          {},
+          structuredClone(defaultData),
+          parsed
+        );
+
+      persist();
+
+      alert(
+        'Backup importado.'
+      );
+
+    }
+
+    catch(_){
+
+      alert(
+        'Arquivo de backup inválido.'
+      );
+
+    }
+
+    e.target.value='';
+
+  }
+);
+
+function resetData(){
+
+  if(
+    confirm(
+      'Tem certeza? Isso apaga todos os dados deste aparelho.'
+    )
+  ){
+
+    data=
+      structuredClone(
+        defaultData
+      );
+
+    persist();
+
+  }
+
+}
+
+function escapeHtml(s=''){
+
+  return String(s).replace(
+
+    /[&<>"']/g,
+
+    c=>({
+
+      '&':'&amp;',
+
+      '<':'&lt;',
+
+      '>':'&gt;',
+
+      '"':'&quot;',
+
+      "'":'&#39;'
+
+    }[c])
+
+  );
+
+}
+
+document
+  .getElementById(
+    'prevMonth'
+  )
+  .onclick=()=>{
+
+    selectedMonth.setMonth(
+      selectedMonth.getMonth()-1
+    );
+
+    renderAll();
+
+  };
+
+document
+  .getElementById(
+    'nextMonth'
+  )
+  .onclick=()=>{
+
+    selectedMonth.setMonth(
+      selectedMonth.getMonth()+1
+    );
+
+    renderAll();
+
+  };
+
+document
+  .getElementById(
+    'themeBtn'
+  )
+  .onclick=()=>{
+
+    data.theme=
+      data.theme==='dark'
+        ? 'light'
+        : 'dark';
+
+    persist();
+
+  };
+
+document
+  .querySelectorAll(
+    '#nav button'
+  )
+  .forEach(
+    b=>
+    b.onclick=()=>{
+
+      document
+        .querySelectorAll(
+          '.view'
+        )
+        .forEach(
+          v=>
+          v.classList.remove(
+            'active'
+          )
+        );
+
+      document
+        .getElementById(
+          b.dataset.view
+        )
+        .classList
+        .add('active');
+
+      document
+        .querySelectorAll(
+          '#nav button'
+        )
+        .forEach(
+          x=>
+          x.classList.remove(
+            'active'
+          )
+        );
+
+      b.classList.add(
+        'active'
+      );
+
+      fab.style.display=
+        b.dataset.view==='settings'
+          ? 'none'
+          : 'block';
+
+    }
+  );
+
+filterType
+  .addEventListener(
+    'change',
+    renderTransactions
+  );
+
+filterText
+  .addEventListener(
+    'input',
+    renderTransactions
+  );
+
+document
+  .querySelectorAll(
+    '.modal'
+  )
+  .forEach(
+    m=>
+    m.addEventListener(
+      'click',
+      e=>{
+
+        if(e.target===m)
+          m.classList.remove(
+            'show'
+          );
+
+      }
+    )
+  );
+
+if(
+  'serviceWorker' in navigator
+  &&
+  location.protocol.startsWith('http')
+){
+
+  navigator
+    .serviceWorker
+    .register('sw.js')
+    .catch(()=>{});
+
+}
+
+renderAll();
+
+</script>
+
+</body>
+</html>
